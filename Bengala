@@ -1,0 +1,84 @@
+#define motor 4 //entradas digitais definidas por seus perifericos.
+#define led 3
+#define led2 2
+#define buzzer 9
+#define pingTrigger 12
+#define Sensor_1 11
+#define Sensor_2 13
+
+long duration, cm, cm2; //variaveis de tempo e distancia.
+float x; //variavel da frequencia do led, motor e buzzer, relativo ao sensor 1.
+float y;//variavel da frequencia do led, motor e buzzer, relativo ao sensor 2.
+
+void setup() {
+  pinMode(motor, OUTPUT);//saidas do arduino
+  pinMode(led, OUTPUT);
+  pinMode(led2, OUTPUT);
+  pinMode(buzzer, OUTPUT);
+  pinMode(pingTrigger, OUTPUT);
+  pinMode(Sensor_1, INPUT);
+  pinMode(Sensor_2, INPUT);
+  Serial.begin(9600); //velocidade de resposta do serial.
+}
+void loop() {
+  digitalWrite(pingTrigger, LOW);//resguardo de 2 microsegundos para controlar com exatidão o intervalo do pulso. 
+  delayMicroseconds(2);
+  digitalWrite(pingTrigger, HIGH);//pulso do sensores.
+  delayMicroseconds(5);
+  digitalWrite(pingTrigger, LOW);
+
+  duration = pulseIn(Sensor_1, HIGH);//intervalo de ida e volta do pulso em microsegundos(sensor 1). 
+
+ 
+  cm = microsecondsToCentimeters(duration);//calculo de distancia, usando a velocidade do som e a duração do pulso(sensor 1).
+  Serial.println("Sensor 1");//entrada serial, para verificar o funcionamento do sensor 1.
+  Serial.print(cm);
+  Serial.print("cm");
+  Serial.println();
+  
+  if (cm < 60)//condição para ativação dos perifericos.
+  {
+    x = 20*cm;//atribuição de valor a X.
+    tone(buzzer, 528, 200);//um apito na frequencia da nota dó, por 200 microsegundos.
+    digitalWrite(led,HIGH);//ligar led vermelho.
+    digitalWrite(motor,HIGH);//ligar o vibracall.
+    delay(x);//delay com x microsegundos
+    digitalWrite(motor,LOW);//desligar o vibracall.
+    digitalWrite(led,LOW);//desligar led vermelho.
+    delay(x/2);//delay com x/2 microsegundos
+	}
+else //manter tudo desligado.
+    noTone(buzzer);
+    digitalWrite(motor,LOW);
+    digitalWrite(led,LOW); 
+ 
+  duration = pulseIn(Sensor_2, HIGH);//intervalo de ida e volta do pulso em microsegundos(sensor 1). 
+
+  cm2 = microsecondsToCentimeters(duration);//calculo de distancia, usando a velocidade do som e a duração do pulso(sensor 2).
+  Serial.println("Sensor 2");//entrada serial, para verificar o funcionamento do sensor 2.
+  Serial.print(cm2);
+  Serial.print("cm");
+  Serial.println(); 
+  
+  if (cm2 < 193)//condição para ativação dos perifericos.
+  {
+    y = 13*cm2;//atribuição de valor a Y.
+    tone(buzzer, 665, 200);//um apito na frequencia da nota mi, por 200 microsegundos.
+    digitalWrite(led2,HIGH);//ligar led azul.
+    digitalWrite(motor,HIGH);//ligar o vibracall.
+    delay(y);//delay com y microsegundos
+    digitalWrite(motor,LOW);//desligar o vibracall.
+    digitalWrite(led2,LOW);//desligar led azul.
+    delay(y/2);//delay com y/2 microsegundos
+	}
+ else //manter tudo desligado.
+    noTone(buzzer); 
+    digitalWrite(motor,LOW);
+    digitalWrite(led,LOW);
+   
+}
+
+long microsecondsToCentimeters(long microseconds)//conversão de microseguntos para centimetros
+{
+  return microseconds / 29 / 2;
+}
